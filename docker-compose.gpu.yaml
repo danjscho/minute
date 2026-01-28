@@ -1,0 +1,66 @@
+# Docker Compose override for GPU-enabled local models
+#
+# Usage:
+#   docker compose -f docker-compose.yaml -f docker-compose.gpu.yaml up
+#
+# This override:
+#   - Uses the GPU-enabled Dockerfile for the worker
+#   - Enables NVIDIA GPU access
+#   - Increases shared memory for model loading
+#
+# Prerequisites:
+#   - NVIDIA Container Toolkit installed
+#   - GPU drivers installed
+#   - Set environment variables for local models:
+#     FAST_LLM_PROVIDER=huggingface
+#     FAST_LLM_MODEL_NAME=Qwen/Qwen3-4B  # or unsloth/medgemma-4b-it-bnb-4bit
+#     LOCAL_LLM_ENABLE_THINKING=false  # Set to true to enable chain-of-thought (Qwen3)
+#
+#     For MedASR:
+#       TRANSCRIPTION_SERVICES=["medasr_local"]
+#       MEDASR_MODEL_NAME=google/medasr
+#
+#     For OlmoASR:
+#       TRANSCRIPTION_SERVICES=["olmoasr_local"]
+#       OLMOASR_MODEL_SIZE=medium  # tiny, base, small, medium, large, large-v2
+
+volumes:
+  hf_cache:
+  olmoasr_cache:
+
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: ./worker/Dockerfile.gpu
+    shm_size: 8gb  # Increased for model loading
+    volumes:
+      # HuggingFace cache (persist model downloads between restarts)
+      - hf_cache:/root/.cache/huggingface
+      # OlmoASR cache (persist model downloads between restarts)
+      - olmoasr_cache:/root/.cache/olmoasr
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"  # More CPUs for inference
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - POSTGRES_HOST=db
+      - RAY_DASHBOARD_HOST=0.0.0.0
+      - LOCALSTACK_URL=http://localstack:4566
+      - STORAGE_SERVICE_NAME=local
+      - LOCAL_STORAGE_PATH=/static
+      # GPU-specific settings
+      - LOCAL_LLM_DEVICE=cuda
+      - MEDASR_DEVICE=cuda
+      - OLMOASR_DEVICE=cuda
+      # HuggingFace token (also available from .env via base compose)
+      - HF_TOKEN=${HF_TOKEN}
+      # Local LLM settings (pass through from .env)
+      - LOCAL_LLM_ENABLE_THINKING=${LOCAL_LLM_ENABLE_THINKING:-false}
+      # OlmoASR settings (pass through from .env)
+      - OLMOASR_MODEL_SIZE=${OLMOASR_MODEL_SIZE:-}

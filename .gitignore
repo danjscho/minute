@@ -7,11 +7,18 @@ venv
 __pycache__/
 /setup.cfg
 .ipynb_checkpoints
-# *.ipynb
+*.ipynb
+notebooks/
+
+# Jupyter development compose (experimental local models)
+docker-compose.jupyter.yaml
+
 .env
 Brewfile.lock.json
 *.pdf
 .mypy_cache
+.pytest_cache
+.ruff_cache/
 
 # Terraform
 **/.terraform/*
@@ -64,6 +71,7 @@ frontend/.env.sentry-build-plugin
 
 # testing
 frontend/coverage
+test_audio/
 
 # next.js
 frontend/.next/

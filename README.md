@@ -118,3 +118,100 @@ different tests (see [test_queues_e2e.py](tests/test_queues_e2e.py) for an examp
 
 You can add your own templates by implementing either the `SimpleTemplate` or `SectionTemplate` protocols (see [here](backend/templates/types.py))
 Simply put them in the [templates](backend/templates) directory, and they will automatically be discovered when the backend starts.
+
+## Local Model Support (GPU) - Experimental
+
+> [!WARNING]
+> Local model support is experimental and intended for development, testing, and research purposes only. These features have not been validated for production use and should not be deployed in production environments. Model outputs may vary in quality and accuracy compared to cloud-based services.
+
+Minute supports running transcription and LLM inference locally using open-source models, enabling fully offline operation or reduced cloud costs for development workflows. This requires a NVIDIA GPU with CUDA support.
+
+### Prerequisites
+
+- NVIDIA GPU with CUDA support
+- [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) installed
+- Docker with GPU support enabled
+
+### Local Transcription
+
+Two local transcription services are available:
+
+#### OlmoASR
+
+[OlmoASR](https://github.com/allenai/OLMoASR) is Allen AI's open-source ASR model, a Whisper-like encoder-decoder architecture.
+
+```bash
+# .env configuration
+TRANSCRIPTION_SERVICES=["olmoasr_local"]
+OLMOASR_MODEL_SIZE=medium  # tiny, base, small, medium, large, large-v2
+OLMOASR_DEVICE=auto        # auto, cuda, or cpu
+```
+
+Model sizes range from tiny (39M parameters) to large-v2 (1.5B parameters). Larger models provide better accuracy but require more VRAM.
+
+#### MedASR
+
+[MedASR](https://huggingface.co/google/medasr) is Google's medical speech recognition model, optimised for healthcare terminology.
+
+```bash
+# .env configuration
+TRANSCRIPTION_SERVICES=["medasr_local"]
+MEDASR_MODEL_NAME=google/medasr
+MEDASR_DEVICE=auto
+```
+
+### Local LLM Inference
+
+Minute supports running local language models via HuggingFace Transformers for minute generation. Both text-only models (Qwen3, Llama, Mistral) and multimodal models (MedGemma) are supported.
+
+#### Qwen3
+
+[Qwen3](https://huggingface.co/Qwen/Qwen3-4B) is a capable open-source model with optional chain-of-thought reasoning.
+
+```bash
+# .env configuration
+FAST_LLM_PROVIDER=huggingface
+FAST_LLM_MODEL_NAME=Qwen/Qwen3-4B
+BEST_LLM_PROVIDER=huggingface
+BEST_LLM_MODEL_NAME=Qwen/Qwen3-4B
+LOCAL_LLM_DEVICE=auto
+LOCAL_LLM_MAX_NEW_TOKENS=2048
+LOCAL_LLM_ENABLE_THINKING=false  # Set to true to enable chain-of-thought reasoning
+```
+
+#### MedGemma
+
+[MedGemma](https://huggingface.co/unsloth/medgemma-4b-it-bnb-4bit) is Google's medical-focused multimodal model, available in 4-bit quantised form for reduced VRAM usage.
+
+```bash
+# .env configuration
+FAST_LLM_PROVIDER=huggingface
+FAST_LLM_MODEL_NAME=unsloth/medgemma-4b-it-bnb-4bit
+LOCAL_LLM_DEVICE=auto
+```
+
+> [!NOTE]
+> MedGemma requires accepting the model license on HuggingFace and setting `HF_TOKEN` in your environment.
+
+### Medical Models Disclaimer
+
+> [!CAUTION]
+> **Not for clinical use.** MedASR and MedGemma are medical-domain models included for research and prototyping purposes only. These models have not been validated for clinical accuracy, are not certified medical devices, and must not be used to inform clinical decisions, patient care, or any healthcare-related workflows. Outputs from these models may contain errors and should never be relied upon in medical or healthcare settings. Always consult qualified healthcare professionals for medical advice.
+
+### Running with GPU Support
+
+Use the GPU-enabled Docker Compose override:
+
+```bash
+docker compose -f docker-compose.yaml -f docker-compose.gpu.yaml up --build
+```
+
+This override:
+- Uses a GPU-enabled Dockerfile for the worker
+- Enables NVIDIA GPU access via the Container Toolkit
+- Increases shared memory (8GB) for model loading
+- Persists model downloads in Docker volumes to avoid re-downloading
+
+### Model Caching
+
+Models are cached in Docker volumes (`hf_cache`, `olmoasr_cache`) to persist between container restarts. The first transcription or minute generation will be slower as models are downloaded; subsequent requests use the cached models.

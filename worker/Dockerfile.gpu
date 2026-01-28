@@ -1,0 +1,50 @@
+# GPU-enabled Dockerfile for running local models (MedGemma, MedASR)
+# Use this when running with local HuggingFace models that require GPU acceleration
+#
+# Build: docker build -f worker/Dockerfile.gpu -t minute-worker-gpu .
+# Run:   docker run --gpus all minute-worker-gpu
+
+# Start from Python 3.12 slim (same base as main Dockerfile for compatibility)
+FROM python:3.12-slim
+
+# The following three ENVs are to ensure ray logs appear properly
+ENV RAY_ROTATION_MAX_BYTES=10485760
+ENV RAY_ROTATION_BACKUP_COUNT=1
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies and CUDA runtime libraries
+# PyTorch ships with its own CUDA libraries, so we only need minimal runtime support
+# Build tools (cmake, g++) needed for kenlm language model package
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    curl \
+    libsndfile1 \
+    cmake \
+    g++ \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN pip install --no-cache-dir poetry
+
+WORKDIR /app
+
+# Copy only requirements to cache them in docker layer
+COPY pyproject.toml poetry.lock README.md ./
+
+# Configure poetry
+RUN poetry config virtualenvs.create false
+
+# Install project dependencies including local-models group
+RUN poetry install --with worker,local-models --without dev --no-interaction --no-ansi --no-root
+
+# Copy the application code
+COPY common common
+COPY backend/__init__.py backend/__init__.py
+COPY worker worker
+
+RUN poetry install --only-root
+
+RUN chmod +x worker/entrypoint.sh
+
+CMD [ "worker/entrypoint.sh" ]

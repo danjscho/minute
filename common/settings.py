@@ -111,6 +111,69 @@ class Settings(BaseSettings):
         default="gemini-2.5-flash",
     )
 
+    # if using local HuggingFace models (e.g., MedGemma, Qwen3)
+    LOCAL_LLM_DEVICE: str = Field(
+        description="Device for local LLM inference (auto, cuda, cpu, mps)",
+        default="auto",
+    )
+    LOCAL_LLM_MAX_NEW_TOKENS: int = Field(
+        description="Maximum tokens to generate for local LLM",
+        default=2048,
+    )
+    LOCAL_LLM_ENABLE_THINKING: bool = Field(
+        description="Enable thinking/reasoning mode for models that support it (e.g., Qwen3). "
+        "When False, thinking is disabled and output is stripped of thinking tags.",
+        default=False,
+    )
+
+    # HuggingFace authentication (for gated models like MedGemma, MedASR)
+    HF_TOKEN: str | None = Field(
+        description="HuggingFace API token for accessing gated models",
+        default=None,
+    )
+
+    # if using local MedASR transcription
+    MEDASR_MODEL_NAME: str | None = Field(
+        description="HuggingFace model ID for MedASR (e.g., google/medasr)",
+        default=None,
+    )
+    MEDASR_DEVICE: str = Field(
+        description="Device for MedASR inference (auto, cuda, cpu)",
+        default="auto",
+    )
+    MEDASR_CHUNK_LENGTH_S: int = Field(
+        description="Audio chunk length in seconds for processing long files",
+        default=20,
+    )
+    MEDASR_STRIDE_LENGTH_S: int = Field(
+        description="Overlap between chunks in seconds",
+        default=2,
+    )
+    MEDASR_USE_LM: bool = Field(
+        description="Use language model for beam search decoding (improves quality)",
+        default=True,
+    )
+    MEDASR_BEAM_WIDTH: int = Field(
+        description="Beam width for CTC decoding with language model",
+        default=8,
+    )
+
+    # if using local OlmoASR transcription
+    OLMOASR_MODEL_SIZE: str | None = Field(
+        description="OlmoASR model size (tiny, base, small, medium, large, large-v2)",
+        default=None,
+    )
+    OLMOASR_DEVICE: str = Field(
+        description="Device for OlmoASR inference (auto, cuda, cpu)",
+        default="auto",
+    )
+
+    # Ray GPU allocation for local models
+    RAY_GPU_FRACTION: float = Field(
+        description="Fractional GPU allocation per Ray actor (0.5 = share GPU between 2 actors)",
+        default=0.5,
+    )
+
     STORAGE_SERVICE_NAME: str = Field(
         description="Storage service type to use for file uploads. Currently supported are: s3, azure-blob",
         default="s3",
@@ -156,10 +219,10 @@ class Settings(BaseSettings):
     )
 
     MIN_WORD_COUNT_FOR_SUMMARY: int = Field(
-        default=200, description="Transcript must have at least this many words to be passed to summary stage"
+        default=50, description="Transcript must have at least this many words to be passed to summary stage"
     )
     MIN_WORD_COUNT_FOR_FULL_SUMMARY: int = Field(
-        default=199,
+        default=100,
         description=(
             "Transcript must have at least this many words to be passed to complex summary stage. "
             "Note, this is disabled by default as is lower than the MIN_WORD_COUNT_FOR_SUMMARY"

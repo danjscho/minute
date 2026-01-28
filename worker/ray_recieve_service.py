@@ -10,7 +10,7 @@ from common.services.queue_services.base import QueueService
 from common.services.transcription_handler_service import TranscriptionHandlerService
 from common.settings import get_settings
 from common.types import TaskType, WorkerMessage
-from worker.healthcheck import HEARTBEAT_DIR
+from worker.healthcheck import HEARTBEAT_DIR, _ensure_heartbeat_dir
 
 logger = logging.getLogger(__name__)
 ray_logger = logging.getLogger("ray")
@@ -31,6 +31,7 @@ class HasBeenStopped:
 
 
 # restart indefinitely, try each task only once
+# GPU fraction configurable via RAY_GPU_FRACTION setting (default 0.5 for GPU sharing)
 @ray.remote(max_restarts=-1, max_task_retries=0)
 class RayTranscriptionService:
     def __init__(
@@ -40,6 +41,7 @@ class RayTranscriptionService:
         self.transcription_queue_service = transcription_queue_service
         self.llm_queue_service = llm_queue_service
         actor_id = ray.get_runtime_context().get_actor_id()
+        _ensure_heartbeat_dir()
         self.heartbeat_path = HEARTBEAT_DIR / f"worker_{actor_id}.heartbeat"
         self.heartbeat_path.touch()
         logger.info("Ray Transcription receive service initialised")
@@ -75,12 +77,14 @@ class RayTranscriptionService:
             self.heartbeat_path.touch()
 
 
+# GPU fraction configurable via RAY_GPU_FRACTION setting (default 0.5 for GPU sharing)
 @ray.remote(max_restarts=-1, max_task_retries=0)
 class RayLlmService:
     def __init__(self, queue_service: QueueService, stopped: HasBeenStopped) -> None:
         self.stopped = stopped
         self.queue_service = queue_service
         actor_id = ray.get_runtime_context().get_actor_id()
+        _ensure_heartbeat_dir()
         self.heartbeat_path = HEARTBEAT_DIR / f"worker_{actor_id}.heartbeat"
         self.heartbeat_path.touch()
         logger.info("Ray LLM receive service initialised")

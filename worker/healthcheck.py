@@ -8,10 +8,22 @@ logger = logging.getLogger()
 
 HEARTBEAT_DIR = Path("/healthcheck")
 HEARTBEAT_TIMEOUT = 1200  # 20 minutes
-HEARTBEAT_DIR.mkdir(exist_ok=True)
+
+
+def _ensure_heartbeat_dir() -> None:
+    """Create heartbeat directory if it doesn't exist.
+
+    Called lazily to avoid PermissionError during test collection.
+    """
+    try:
+        HEARTBEAT_DIR.mkdir(exist_ok=True)
+    except PermissionError:
+        # Running outside Docker (e.g., during tests) - skip directory creation
+        pass
 
 
 def healthcheck() -> tuple[bool, str]:
+    _ensure_heartbeat_dir()
     current_time = time.time()
     heartbeat_files = list(HEARTBEAT_DIR.glob("worker_*.heartbeat"))
     if not heartbeat_files:

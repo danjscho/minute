@@ -22,8 +22,13 @@ class WorkerService:
         self.calls = []
         self.signal_handler = SignalHandler()
         self.stopped = HasBeenStopped.remote()
+
+        # Apply GPU fraction dynamically (allows sharing GPU between actors)
+        gpu_fraction = settings.RAY_GPU_FRACTION
+        logger.info("Using GPU fraction: %s per actor", gpu_fraction)
+
         for _ in range(settings.MAX_TRANSCRIPTION_PROCESSES):
-            transcription_worker = RayTranscriptionService.remote(
+            transcription_worker = RayTranscriptionService.options(num_gpus=gpu_fraction).remote(
                 self.transcription_queue_service, self.llm_queue_service, self.stopped
             )
             transcription_worker_call = transcription_worker.process.remote()
@@ -31,7 +36,9 @@ class WorkerService:
             self.calls.append(transcription_worker_call)
 
         for _ in range(settings.MAX_LLM_PROCESSES):
-            llm_worker = RayLlmService.remote(self.llm_queue_service, self.stopped)
+            llm_worker = RayLlmService.options(num_gpus=gpu_fraction).remote(
+                self.llm_queue_service, self.stopped
+            )
             llm_worker_call = llm_worker.process.remote()
             self.actors.append(llm_worker)
             self.calls.append(llm_worker_call)
@@ -78,9 +85,19 @@ def create_worker_service() -> WorkerService:
     # max concurrent ray processes
     # +4 as we need 2 for the ray Queues, 1 for the HasBeenStopped Actor, plus one 'spare'
     # we init ray here so we can handle its init in testing
+    #
+    # Detect available GPUs for local model inference
+    import torch
+    num_gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+    if num_gpus > 0:
+        logger.info("Detected %d GPU(s), enabling GPU support in Ray", num_gpus)
+    else:
+        logger.info("No GPUs detected, Ray will run in CPU-only mode")
+
     ray.init(
         log_to_driver=True,
         num_cpus=(settings.MAX_TRANSCRIPTION_PROCESSES + settings.MAX_LLM_PROCESSES + 4),
+        num_gpus=num_gpus,
         configure_logging=True,
         dashboard_host=settings.RAY_DASHBOARD_HOST,
         dashboard_port=8265,

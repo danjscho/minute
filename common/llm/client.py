@@ -11,7 +11,7 @@ from tenacity import (
     wait_random_exponential,
 )
 
-from common.llm.adapters import GeminiModelAdapter, ModelAdapter, OpenAIModelAdapter
+from common.llm.adapters import GeminiModelAdapter, HuggingFaceModelAdapter, ModelAdapter, OpenAIModelAdapter
 from common.prompts import get_hallucination_detection_messages
 from common.settings import get_settings
 from common.types import LLMHallucination
@@ -101,6 +101,15 @@ def create_chatbot(model_type: str, model_name: str, temperature: float) -> Chat
                     safety_settings=GeminiModelAdapter.no_safety_settings(),
                     temperature=temperature,
                 ),
+            )
+        )
+    elif model_type == "huggingface":
+        return ChatBot(
+            HuggingFaceModelAdapter(
+                model=model_name,
+                device=settings.LOCAL_LLM_DEVICE,
+                temperature=temperature,
+                max_new_tokens=settings.LOCAL_LLM_MAX_NEW_TOKENS,
             )
         )
     else:

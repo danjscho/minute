@@ -66,6 +66,28 @@ ray = {extras = ["default"], version = "^2.53.0"}
 azure-storage-blob = "^12.26.0"
 azure-identity = "^1.23.1"
 
+[tool.poetry.group.local-models]
+optional = true
+
+[tool.poetry.group.local-models.dependencies]
+# Note: MedASR requires transformers >= 5.0.0
+# Pin to specific commit used in MedASR quick_start notebook for best results
+transformers = { git = "https://github.com/huggingface/transformers.git", rev = "65dc261512cbdb1ee72b88ae5b222f2605aad8e5" }
+torch = "^2.0.0"
+accelerate = "^1.0.0"  # Needs >= 1.0 for transformers 5.x device_map support
+librosa = "^0.10.0"
+jupyter = "^1.0.0"
+pillow = "^10.0.0"
+nest-asyncio = "^1.6.0"
+# MedASR language model decoding dependencies
+kenlm = "0.3.0"
+# pyctcdecode fork compatible with newer transformers
+pyctcdecode = { git = "https://github.com/mediacatch/pyctcdecode.git", rev = "ff49fc562bf8fc5d6697d4dcd34188dd630cc977" }
+# bitsandbytes for 4-bit quantized models (e.g., unsloth MedGemma)
+bitsandbytes = "^0.49.0"
+# OlmoASR - Allen AI's open-source ASR (Whisper-like encoder-decoder)
+olmoasr = { git = "https://github.com/allenai/OLMoASR.git" }
+
 [tool.poetry.group.dev.dependencies]
 bumpversion = "^0.6.0"
 pre-commit = "^3.8.0"
