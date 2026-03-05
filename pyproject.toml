@@ -88,6 +88,16 @@ bitsandbytes = "^0.49.0"
 # OlmoASR - Allen AI's open-source ASR (Whisper-like encoder-decoder)
 olmoasr = { git = "https://github.com/allenai/OLMoASR.git" }
 
+[tool.poetry.group.snomed]
+optional = true
+
+[tool.poetry.group.snomed.dependencies]
+faiss-cpu = "^1.7"
+fhir-resources = "^8.0"
+# sentence-transformers, scispacy, medcat removed — all unused (zero imports).
+# medcat requires transformers<5.0 which conflicts with local-models group.
+# When Phase 8 (MedCAT) starts, it must run in a separate Docker container.
+
 [tool.poetry.group.dev.dependencies]
 bumpversion = "^0.6.0"
 pre-commit = "^3.8.0"

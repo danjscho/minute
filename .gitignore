@@ -117,3 +117,7 @@ config/google-credentials.json
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+/projects
+TASKS.md
+CLAUDE.md

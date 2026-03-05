@@ -99,6 +99,12 @@ class HallucinationType(StrEnum):
     OTHER = auto()
 
 
+class SourceType(StrEnum):
+    TRANSCRIPT = auto()
+    MINUTE = auto()
+    MINUTE_VERSION = auto()
+
+
 class Hallucination(BaseTableMixin, table=True):
     __tablename__ = "hallucination"
     created_datetime: datetime = Field(sa_column=created_datetime_column(), default=None)
@@ -108,6 +114,40 @@ class Hallucination(BaseTableMixin, table=True):
     hallucination_type: HallucinationType = Field(description="Type of hallucination", default=HallucinationType.OTHER)
     hallucination_text: str | None = Field(description="Text of hallucination", default=None)
     hallucination_reason: str | None = Field(description="Reason for hallucination", default=None)
+
+
+class SnomedAnnotation(BaseTableMixin, table=True):
+    __tablename__ = "snomed_annotation"
+    created_datetime: datetime = Field(sa_column=created_datetime_column(), default=None)
+    updated_datetime: datetime = Field(sa_column=updated_datetime_column(), default=None)
+
+    transcription_id: UUID = Field(foreign_key="transcription.id", ondelete="CASCADE")
+    transcription: Mapped["Transcription"] = Relationship(back_populates="snomed_annotations")
+
+    source_type: SourceType = Field(description="What type of content this annotation was extracted from")
+    source_id: UUID | None = Field(
+        default=None,
+        description="ID of the specific source entity (e.g. minute_version ID). Null if source is the transcription.",
+    )
+
+    text_span: str = Field(max_length=500, description="The matched text from the source")
+    start_char: int = Field(description="Start character offset in the source text")
+    end_char: int = Field(description="End character offset in the source text")
+    entity_type: str | None = Field(
+        default=None, max_length=50, description="NER entity type (e.g. finding, procedure)"
+    )
+
+    snomed_concept_id: str | None = Field(default=None, max_length=20, description="SNOMED CT concept identifier")
+    snomed_preferred_term: str | None = Field(default=None, max_length=500, description="SNOMED CT preferred term")
+    snomed_fsn: str | None = Field(default=None, max_length=500, description="SNOMED CT fully specified name")
+    confidence_score: float | None = Field(default=None, description="Model confidence score for this annotation")
+
+    is_verified: bool = Field(default=False, description="Whether a human has verified this annotation")
+    verified_by: UUID | None = Field(default=None, foreign_key="user.id", ondelete="SET NULL")
+
+    alternative_concepts: list[dict] | None = Field(
+        default=None, sa_column=Column(JSONB), description="Top-K alternative SNOMED concepts"
+    )
 
 
 # Main models with table=True for DB tables
@@ -172,6 +212,10 @@ class Transcription(BaseTableMixin, table=True):
         back_populates="transcription",
         cascade_delete=True,
         sa_relationship_kwargs={"order_by": col(Chat.created_datetime).desc()},
+    )
+    snomed_annotations: list[SnomedAnnotation] = Relationship(
+        back_populates="transcription",
+        cascade_delete=True,
     )
 
 

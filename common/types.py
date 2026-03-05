@@ -4,7 +4,14 @@ from enum import IntEnum, StrEnum, auto
 
 from pydantic import BaseModel, Field
 
-from common.database.postgres_models import ContentSource, DialogueEntry, HallucinationType, JobStatus, TemplateType
+from common.database.postgres_models import (
+    ContentSource,
+    DialogueEntry,
+    HallucinationType,
+    JobStatus,
+    SourceType,
+    TemplateType,
+)
 
 
 class TranscriptionMetadata(BaseModel):
@@ -172,6 +179,7 @@ class TaskType(IntEnum):
     MINUTE = 2
     EDIT = 3
     INTERACTIVE = 4
+    SNOMED_CODING = 5
 
 
 class EditMessageData(BaseModel):
@@ -187,10 +195,14 @@ class TranscriptionJobMessageData(BaseModel):
     transcript: list[DialogueEntry] | None = Field(description="Transcript of the transcription", default=None)
 
 
+class SNOMEDCodingMessageData(BaseModel):
+    source_type: str = Field(description="Source type for SNOMED coding: transcript or minute")
+
+
 class WorkerMessage(BaseModel):
     id: uuid.UUID
     type: TaskType
-    data: EditMessageData | TranscriptionJobMessageData | None = Field(default=None)
+    data: EditMessageData | TranscriptionJobMessageData | SNOMEDCodingMessageData | None = Field(default=None)
 
 
 class LLMHallucination(BaseModel):
@@ -254,3 +266,69 @@ class CreateUserTemplateRequest(BaseModel):
     description: str
     type: TemplateType
     questions: list[CreateQuestion] | None = None
+
+
+class AlternativeSnomedConcept(BaseModel):
+    """A candidate SNOMED concept from the top-K results."""
+
+    concept_id: str = Field(description="SNOMED CT concept identifier")
+    preferred_term: str = Field(description="SNOMED CT preferred term")
+    fsn: str | None = Field(default=None, description="Fully specified name")
+    confidence_score: float = Field(description="Confidence score for this candidate")
+
+
+class SnomedAnnotationResponse(BaseModel):
+    """Response schema for a single SNOMED annotation."""
+
+    id: uuid.UUID
+    transcription_id: uuid.UUID
+    source_type: SourceType
+    source_id: uuid.UUID | None
+    text_span: str
+    start_char: int
+    end_char: int
+    entity_type: str | None
+    snomed_concept_id: str | None
+    snomed_preferred_term: str | None
+    snomed_fsn: str | None
+    confidence_score: float | None
+    is_verified: bool
+    verified_by: uuid.UUID | None
+    alternative_concepts: list[AlternativeSnomedConcept] | None
+    created_datetime: datetime
+    updated_datetime: datetime
+
+
+class SnomedAnnotationListResponse(BaseModel):
+    """Response schema for listing SNOMED annotations for a transcription."""
+
+    annotations: list[SnomedAnnotationResponse]
+    total_count: int
+
+
+class SnomedAnnotationVerifyRequest(BaseModel):
+    """Request to verify or correct a SNOMED annotation."""
+
+    is_verified: bool = Field(description="Whether the annotation is verified as correct")
+    snomed_concept_id: str | None = Field(
+        default=None, description="Corrected SNOMED concept ID if overriding the model's choice"
+    )
+    snomed_preferred_term: str | None = Field(default=None, description="Corrected preferred term")
+    snomed_fsn: str | None = Field(default=None, description="Corrected fully specified name")
+
+
+class SnomedConceptSearchResult(BaseModel):
+    """A single SNOMED concept in search results."""
+
+    concept_id: str = Field(description="SNOMED CT concept identifier")
+    preferred_term: str = Field(description="Preferred term for the concept")
+    fsn: str = Field(description="Fully specified name")
+    semantic_tag: str = Field(description="Semantic tag (e.g., finding, procedure)")
+
+
+class SnomedConceptSearchResponse(BaseModel):
+    """Response for SNOMED concept search endpoint."""
+
+    results: list[SnomedConceptSearchResult] = Field(description="Matching concepts")
+    total_count: int = Field(description="Number of results returned")
+    query: str = Field(description="The search query")

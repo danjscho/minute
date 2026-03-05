@@ -174,6 +174,60 @@ class Settings(BaseSettings):
         default=0.5,
     )
 
+    # SNOMED CT clinical coding
+    SNOMED_CODING_ENABLED: bool = Field(
+        description="Enable SNOMED CT clinical coding of transcriptions",
+        default=False,
+    )
+    SNOMED_NER_MODEL: str = Field(
+        description="HuggingFace model ID for biomedical NER (token classification)",
+        default="d4data/biomedical-ner-all",
+    )
+    SNOMED_LINKER_MODEL: str = Field(
+        description="HuggingFace model ID for SNOMED concept linking",
+        default="cambridgeltl/SapBERT-from-PubMedBERT-fulltext",
+    )
+    SNOMED_DEVICE: str = Field(
+        description="Device for SNOMED model inference (auto, cuda, cpu)",
+        default="auto",
+    )
+    SNOMED_CONFIDENCE_THRESHOLD: float = Field(
+        description="Minimum confidence score for accepting a SNOMED annotation",
+        default=0.7,
+    )
+    SNOMED_TOP_K_CANDIDATES: int = Field(
+        description="Number of top candidate SNOMED concepts to return per entity",
+        default=5,
+    )
+    SNOMED_RERANKER_ENABLED: bool = Field(
+        description="Enable cross-encoder reranking of SNOMED concept candidates",
+        default=False,
+    )
+    SNOMED_BATCH_SIZE: int = Field(
+        description="Batch size for NER inference",
+        default=32,
+    )
+    SNOMED_MAX_SEQ_LENGTH: int = Field(
+        description="Maximum sequence length for NER model input",
+        default=512,
+    )
+    SNOMED_CT_DATA_PATH: str = Field(
+        description="Path to SNOMED CT terminology data files",
+        default="/data/snomed-ct",
+    )
+    SNOMED_FAISS_INDEX_PATH: str = Field(
+        description="Path to pre-built FAISS index for SNOMED concept embeddings",
+        default="/data/snomed-embeddings/faiss.index",
+    )
+    SNOMED_EMBEDDINGS_CACHE: str = Field(
+        description="Directory for cached SNOMED concept embeddings",
+        default="/data/snomed-embeddings",
+    )
+    MEDCAT_MODEL_PACK_PATH: str | None = Field(
+        description="Path to MedCAT model pack ZIP. If set, MedCAT is used instead of standalone NER+linker",
+        default=None,
+    )
+
     STORAGE_SERVICE_NAME: str = Field(
         description="Storage service type to use for file uploads. Currently supported are: s3, azure-blob",
         default="s3",

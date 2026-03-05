@@ -326,7 +326,7 @@ version = "0.7.0"
 description = "Reusable constraint types to use with typing.Annotated"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "local-models", "worker"]
+groups = ["main", "local-models", "snomed", "worker"]
 files = [
     {file = "annotated_types-0.7.0-py3-none-any.whl", hash = "sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53"},
     {file = "annotated_types-0.7.0.tar.gz", hash = "sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89"},
@@ -1797,6 +1797,35 @@ files = [
 tests = ["asttokens (>=2.1.0)", "coverage", "coverage-enable-subprocess", "ipython", "littleutils", "pytest", "rich ; python_version >= \"3.11\""]
 
 [[package]]
+name = "faiss-cpu"
+version = "1.13.2"
+description = "A library for efficient similarity search and clustering of dense vectors."
+optional = false
+python-versions = "<3.15,>=3.10"
+groups = ["snomed"]
+files = [
+    {file = "faiss_cpu-1.13.2-cp310-abi3-macosx_14_0_arm64.whl", hash = "sha256:a9064eb34f8f64438dd5b95c8f03a780b1a3f0b99c46eeacb1f0b5d15fc02dc1"},
+    {file = "faiss_cpu-1.13.2-cp310-abi3-macosx_14_0_x86_64.whl", hash = "sha256:c8d097884521e1ecaea6467aeebbf1aa56ee4a36350b48b2ca6b39366565c317"},
+    {file = "faiss_cpu-1.13.2-cp310-abi3-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0ee330a284042c2480f2e90450a10378fd95655d62220159b1408f59ee83ebf1"},
+    {file = "faiss_cpu-1.13.2-cp310-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ab88ee287c25a119213153d033f7dd64c3ccec466ace267395872f554b648cd7"},
+    {file = "faiss_cpu-1.13.2-cp310-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:85511129b34f890d19c98b82a0cd5ffb27d89d1cec2ee41d2621ee9f9ef8cf3f"},
+    {file = "faiss_cpu-1.13.2-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:8b32eb4065bac352b52a9f5ae07223567fab0a976c7d05017c01c45a1c24264f"},
+    {file = "faiss_cpu-1.13.2-cp310-cp310-win_amd64.whl", hash = "sha256:eb8bf5dd96465d043c22195afbe8276d5197b710704290d9b454144a0ad892ed"},
+    {file = "faiss_cpu-1.13.2-cp311-cp311-win_amd64.whl", hash = "sha256:7c5944d7807d58fe7244b6aba06be710ee7ed99343365ed92699349efe979f51"},
+    {file = "faiss_cpu-1.13.2-cp311-cp311-win_arm64.whl", hash = "sha256:19508a1badfb36e456c1c8664eeb948349f604db5c7545f277a0126b4a84b080"},
+    {file = "faiss_cpu-1.13.2-cp312-cp312-win_amd64.whl", hash = "sha256:b82c01d30430dd7b1fa442001b9099735d1a82f6bb72033acdc9206d5ac66a64"},
+    {file = "faiss_cpu-1.13.2-cp312-cp312-win_arm64.whl", hash = "sha256:2c4f696ae76e7c97cbc12311db83aaf1e7f4f7be06a3ffea7e5b0e8ec1fd805b"},
+    {file = "faiss_cpu-1.13.2-cp313-cp313-win_amd64.whl", hash = "sha256:cb4b5ee184816a4b099162ac93c0d7f0033d81a88e7c1291d0a9cc41ec348984"},
+    {file = "faiss_cpu-1.13.2-cp313-cp313-win_arm64.whl", hash = "sha256:1243967eeb2298791ff7f3683a4abd2100d7e6ec7542ca05c3b75d47a7f621e5"},
+    {file = "faiss_cpu-1.13.2-cp314-cp314-win_amd64.whl", hash = "sha256:c8b645e7d56591aa35dc75415bb53a62e4a494dba010e16f4b67daeffd830bd7"},
+    {file = "faiss_cpu-1.13.2-cp314-cp314-win_arm64.whl", hash = "sha256:8113a2a80b59fe5653cf66f5c0f18be0a691825601a52a614c30beb1fca9bc7c"},
+]
+
+[package.dependencies]
+numpy = ">=1.25.0,<3.0"
+packaging = "*"
+
+[[package]]
 name = "fastapi"
 version = "0.128.0"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
@@ -1935,6 +1964,47 @@ files = [
 
 [package.extras]
 psutil = ["psutil (>=5.8.0)"]
+
+[[package]]
+name = "fhir-core"
+version = "1.1.5"
+description = "FHIR Core library"
+optional = false
+python-versions = ">=3.8"
+groups = ["snomed"]
+files = [
+    {file = "fhir_core-1.1.5-py2.py3-none-any.whl", hash = "sha256:8b6a51487ab002410fdc77f5dac8e83e20929693483837c3c237af11ca3e5896"},
+    {file = "fhir_core-1.1.5.tar.gz", hash = "sha256:fc3c14252d32bf0502fdbcec7136685308cc81bf76ae754c3be3aac66bfa5801"},
+]
+
+[package.dependencies]
+pydantic = ">=2.7.4,<3.0"
+
+[package.extras]
+dev = ["Jinja2 (==2.11.1)", "MarkupSafe (==1.1.1)", "PyYAML (>=6.0.1)", "black (>=23.0,<24.0) ; python_version >= \"3.7\"", "certifi", "colorlog (==2.10.0)", "coverage", "fhirspec", "flake8 (==6.0)", "flake8-bugbear (>=22.12.6)", "flake8-isort (>=6.0.0)", "importlib-metadata (>=5.2.0)", "isort (>=5.11.4)", "lxml", "mypy", "pytest (>5.4.0) ; python_version >= \"3.6\"", "pytest-cov (>=2.10.0) ; python_version >= \"3.6\"", "requests (==2.23.0) ; python_version < \"3.10\"", "setuptools (==65.6.3) ; python_version >= \"3.7\"", "types-PyYAML", "types-requests", "types-simplejson", "zest-releaser[recommended]"]
+test = ["PyYAML (>=6.0.1)", "black (>=23.0,<24.0) ; python_version >= \"3.7\"", "coverage", "flake8 (==6.0)", "flake8-bugbear (>=22.12.6)", "flake8-isort (>=6.0.0)", "importlib-metadata (>=5.2.0)", "isort (>=5.11.4)", "lxml", "mypy", "pytest (>5.4.0) ; python_version >= \"3.6\"", "pytest-cov (>=2.10.0) ; python_version >= \"3.6\"", "pytest-runner", "requests (==2.23.0) ; python_version < \"3.10\"", "setuptools (==65.6.3) ; python_version >= \"3.7\"", "types-PyYAML", "types-requests", "types-simplejson"]
+
+[[package]]
+name = "fhir-resources"
+version = "8.2.0"
+description = "FHIR Resources as Model Class"
+optional = false
+python-versions = ">=3.8"
+groups = ["snomed"]
+files = [
+    {file = "fhir_resources-8.2.0-py2.py3-none-any.whl", hash = "sha256:ce6c9edc2aca867a090415885f1b0c625c510feddc0d843dc54a31d8b32ac091"},
+    {file = "fhir_resources-8.2.0.tar.gz", hash = "sha256:122a8b336385d504b399df9c5f332a7d913f07bc71a52dc9dde39abb5bf29129"},
+]
+
+[package.dependencies]
+fhir-core = ">=1.1.5"
+
+[package.extras]
+all = ["PyYAML (>=5.4.1)", "lxml"]
+dev = ["Jinja2 (==3.1.6)", "MarkupSafe (==2.1.5)", "black (>=23.0,<24.0) ; python_version >= \"3.7\"", "certifi", "colorlog (==2.10.0)", "coverage", "fhirspec (>=0.6.0)", "flake8 (==7.3.0)", "flake8-bugbear (>=22.12.6)", "flake8-isort (>=6.0.0)", "importlib-metadata (>=5.2.0)", "isort (>=5.11.4)", "mypy", "pytest (>5.4.0) ; python_version >= \"3.6\"", "pytest-cov (>=2.10.0) ; python_version >= \"3.6\"", "requests (==2.32.4)", "setuptools (==65.6.3) ; python_version >= \"3.7\"", "twine (==6.1.0)", "types-PyYAML", "types-requests", "types-simplejson", "zest-releaser[recommended]"]
+test = ["PyYAML (>=5.4.1)", "black (>=23.0,<24.0) ; python_version >= \"3.7\"", "coverage", "flake8 (==7.3.0)", "flake8-bugbear (>=22.12.6)", "flake8-isort (>=6.0.0)", "importlib-metadata (>=5.2.0)", "isort (>=5.11.4)", "lxml", "mypy", "pytest (>5.4.0) ; python_version >= \"3.6\"", "pytest-cov (>=2.10.0) ; python_version >= \"3.6\"", "pytest-runner", "requests (==2.32.4)", "setuptools (==65.6.3) ; python_version >= \"3.7\"", "types-PyYAML", "types-requests", "types-simplejson"]
+xml = ["lxml"]
+yaml = ["PyYAML (>=5.4.1)"]
 
 [[package]]
 name = "filelock"
@@ -4601,7 +4671,7 @@ version = "2.3.5"
 description = "Fundamental package for array computing in Python"
 optional = false
 python-versions = ">=3.11"
-groups = ["local-models"]
+groups = ["local-models", "snomed"]
 files = [
     {file = "numpy-2.3.5-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:de5672f4a7b200c15a4127042170a694d4df43c992948f5e1af57f0174beed10"},
     {file = "numpy-2.3.5-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:acfd89508504a19ed06ef963ad544ec6664518c863436306153e13e94605c218"},
@@ -5211,7 +5281,7 @@ version = "25.0"
 description = "Core utilities for Python packages"
 optional = false
 python-versions = ">=3.8"
-groups = ["dev", "local-models", "worker"]
+groups = ["dev", "local-models", "snomed", "worker"]
 files = [
     {file = "packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484"},
     {file = "packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f"},
@@ -6081,7 +6151,7 @@ version = "2.12.5"
 description = "Data validation using Python type hints"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "local-models", "worker"]
+groups = ["main", "local-models", "snomed", "worker"]
 files = [
     {file = "pydantic-2.12.5-py3-none-any.whl", hash = "sha256:e561593fccf61e8a20fc46dfc2dfe075b8be7d0188df33f221ad1f0139180f9d"},
     {file = "pydantic-2.12.5.tar.gz", hash = "sha256:4d351024c75c0f085a9febbb665ce8c0c6ec5d30e903bdb6394b7ede26aebb49"},
@@ -6103,7 +6173,7 @@ version = "2.41.5"
 description = "Core functionality for Pydantic validation and serialization"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "local-models", "worker"]
+groups = ["main", "local-models", "snomed", "worker"]
 files = [
     {file = "pydantic_core-2.41.5-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:77b63866ca88d804225eaa4af3e664c5faf3568cea95360d21f4725ab6e07146"},
     {file = "pydantic_core-2.41.5-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:dfa8a0c812ac681395907e71e1274819dec685fec28273a28905df579ef137e2"},
@@ -8659,7 +8729,7 @@ version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "backend", "dev", "local-models", "worker"]
+groups = ["main", "backend", "dev", "local-models", "snomed", "worker"]
 files = [
     {file = "typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"},
     {file = "typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466"},
@@ -8671,7 +8741,7 @@ version = "0.4.2"
 description = "Runtime typing introspection tools"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "local-models", "worker"]
+groups = ["main", "local-models", "snomed", "worker"]
 files = [
     {file = "typing_inspection-0.4.2-py3-none-any.whl", hash = "sha256:4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7"},
     {file = "typing_inspection-0.4.2.tar.gz", hash = "sha256:ba561c48a67c5958007083d386c3295464928b01faa735ab8547c5692e87f464"},
@@ -9414,4 +9484,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "f0cce444b26b554f346aa63a03563c06f4b0cb07d1249226bc1064afa0776e45"
+content-hash = "17fe735204b1b4bcf381337820d1a281a5bfe2335e6823e4e0ff0fd25cbe2fc7"
