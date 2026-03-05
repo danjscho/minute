@@ -215,3 +215,114 @@ This override:
 ### Model Caching
 
 Models are cached in Docker volumes (`hf_cache`, `olmoasr_cache`) to persist between container restarts. The first transcription or minute generation will be slower as models are downloaded; subsequent requests use the cached models.
+
+## SNOMED CT Clinical Coding (Experimental)
+
+> [!WARNING]
+> SNOMED CT coding is experimental and requires a valid SNOMED CT licence. This feature has not been validated for clinical use and must not be used to inform clinical decisions or patient care.
+
+Minute can automatically identify clinical entities in transcribed text and map them to SNOMED CT concepts, enabling structured clinical coding of meeting recordings for healthcare settings.
+
+### Features
+
+- **Named Entity Recognition** using BiomedBERT (`d4data/biomedical-ner-all`) — extracts findings, procedures, body structures, substances, and observable entities
+- **Entity Linking** via SapBERT embeddings + FAISS similarity search — maps extracted entities to SNOMED CT concept codes
+- **Manual Verification** — clinicians can confirm, reject, or change concept assignments through the UI
+- **Concept Search** — look up SNOMED CT concepts by term or synonym
+- **Inline Transcript Highlighting** — coded entities are highlighted in the transcription view
+- **Export** — JSON, CSV, FHIR R4 Bundle, annotated HTML, and Markdown
+
+### Setup
+
+#### 1. Obtain SNOMED CT Data
+
+SNOMED CT release files require a licence:
+- **UK Edition**: [NHS TRUD](https://isd.digital.nhs.uk/trud)
+- **International Edition**: [SNOMED International](https://www.snomed.org/get-snomed) member licensing
+
+Download the RF2 release archive (ZIP).
+
+#### 2. Parse SNOMED CT Data
+
+```bash
+python scripts/setup_snomed.py --rf2-archive /path/to/SnomedCT_*.zip
+```
+
+This parses concepts, descriptions, and relationships, then builds a concept database (~100MB).
+
+#### 3. Build Embedding Index
+
+```bash
+python scripts/build_snomed_index.py
+```
+
+Generates SapBERT embeddings for all concepts and builds a FAISS similarity index. Requires a GPU (~4GB VRAM). Expected runtime: 2-4 hours for ~200k concepts.
+
+#### 4. Configure Environment
+
+Add to your `.env`:
+
+```bash
+SNOMED_CODING_ENABLED=True
+SNOMED_CT_DATA_PATH=/data/snomed-ct
+SNOMED_FAISS_INDEX_PATH=/data/snomed-embeddings/faiss.index
+```
+
+#### 5. Run with GPU Docker Compose
+
+```bash
+docker compose -f docker-compose.yaml -f docker-compose.gpu.yaml up --build
+```
+
+### Architecture
+
+The SNOMED CT pipeline processes text in three stages:
+
+```
+Transcription Text → NER (BiomedBERT) → Entities → Linking (SapBERT + FAISS) → SNOMED Annotations
+```
+
+**Key components:**
+
+| Component | Location | Role |
+|-----------|----------|------|
+| `RF2Parser` | `worker/snomed/data/rf2_parser.py` | Parses SNOMED CT RF2 release files |
+| `ConceptDatabase` | `worker/snomed/data/concept_db.py` | In-memory concept store with synonym index |
+| `BiomedBERTNERService` | `worker/snomed/ner/biomedbert_ner.py` | Token classification NER with text chunking |
+| `SapBERTLinkerService` | `worker/snomed/linking/sapbert_linker.py` | Bi-encoder entity linking with FAISS search |
+| `SNOMEDCodingService` | `worker/snomed/coding_service.py` | Orchestrates NER → linking → annotation creation |
+| `SNOMEDHandlerService` | `common/services/snomed_handler_service.py` | Queue message handler, DB persistence |
+
+**API endpoints:**
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/transcriptions/{id}/snomed-annotations` | List annotations |
+| `POST` | `/transcriptions/{id}/snomed-annotations/trigger` | Trigger coding |
+| `PATCH` | `/snomed-annotations/{id}/verify` | Verify/correct annotation |
+| `GET` | `/transcriptions/{id}/snomed-annotations/export?format=json\|csv\|fhir\|html\|markdown` | Export |
+| `GET` | `/snomed-concepts/search?q=term&limit=10` | Concept search |
+
+**Model selection rationale:**
+- **BiomedBERT** (`d4data/biomedical-ner-all`): Pre-trained on biomedical NER with 41 entity types, no fine-tuning needed
+- **SapBERT**: Purpose-built for biomedical entity linking — produces embeddings where clinical synonyms cluster together
+- **FAISS**: Efficient similarity search that scales to the full SNOMED CT terminology (~200k+ concepts)
+
+**Future work:** MedCAT integration is planned as an alternative backend, but requires a separate Docker container due to a `transformers` version conflict.
+
+### Configuration Reference
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `SNOMED_CODING_ENABLED` | `False` | Enable SNOMED CT clinical coding |
+| `SNOMED_NER_MODEL` | `d4data/biomedical-ner-all` | HuggingFace NER model ID |
+| `SNOMED_LINKER_MODEL` | `cambridgeltl/SapBERT-from-PubMedBERT-fulltext` | HuggingFace linker model ID |
+| `SNOMED_DEVICE` | `auto` | Device for inference (`auto`, `cuda`, `cpu`) |
+| `SNOMED_CONFIDENCE_THRESHOLD` | `0.7` | Minimum confidence for annotations |
+| `SNOMED_TOP_K_CANDIDATES` | `5` | Number of alternative concepts per entity |
+| `SNOMED_RERANKER_ENABLED` | `False` | Enable cross-encoder reranking |
+| `SNOMED_BATCH_SIZE` | `32` | Batch size for NER inference |
+| `SNOMED_MAX_SEQ_LENGTH` | `512` | Maximum token length for NER input |
+| `SNOMED_CT_DATA_PATH` | `/data/snomed-ct` | Path to SNOMED CT data files |
+| `SNOMED_FAISS_INDEX_PATH` | `/data/snomed-embeddings/faiss.index` | Path to FAISS index |
+| `SNOMED_EMBEDDINGS_CACHE` | `/data/snomed-embeddings` | Embeddings cache directory |
