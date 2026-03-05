@@ -149,3 +149,13 @@ release:
 
 generate_api_types:
 	cd frontend && npm run openapi-ts
+
+## SNOMED CT Setup
+
+.PHONY: setup-snomed build-snomed-index
+
+setup-snomed: ## Setup SNOMED CT data from RF2 archive (requires --rf2-archive=<path>)
+	poetry run python scripts/setup_snomed.py $(if $(rf2-archive),--rf2-archive $(rf2-archive),--help)
+
+build-snomed-index: ## Build SNOMED CT embedding index (run after setup-snomed)
+	poetry run python scripts/build_snomed_index.py
