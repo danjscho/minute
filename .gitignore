@@ -121,3 +121,6 @@ config/google-credentials.json
 /projects
 TASKS.md
 CLAUDE.md
+data/
+project/
+.coverage
