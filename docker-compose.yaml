@@ -56,6 +56,9 @@ services:
       - type: bind
         source: ./.data
         target: /static
+      - type: bind
+        source: ./data/snomed-ct
+        target: /app/data/snomed-ct
     environment:
       - POSTGRES_HOST=db
       - RAY_DASHBOARD_HOST=0.0.0.0

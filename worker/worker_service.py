@@ -24,7 +24,9 @@ class WorkerService:
         self.stopped = HasBeenStopped.remote()
 
         # Apply GPU fraction dynamically (allows sharing GPU between actors)
-        gpu_fraction = settings.RAY_GPU_FRACTION
+        # Use 0 when no GPUs are available to avoid Ray scheduling failures
+        available_gpus = ray.cluster_resources().get("GPU", 0)
+        gpu_fraction = settings.RAY_GPU_FRACTION if available_gpus > 0 else 0
         logger.info("Using GPU fraction: %s per actor", gpu_fraction)
 
         for _ in range(settings.MAX_TRANSCRIPTION_PROCESSES):
@@ -36,9 +38,7 @@ class WorkerService:
             self.calls.append(transcription_worker_call)
 
         for _ in range(settings.MAX_LLM_PROCESSES):
-            llm_worker = RayLlmService.options(num_gpus=gpu_fraction).remote(
-                self.llm_queue_service, self.stopped
-            )
+            llm_worker = RayLlmService.options(num_gpus=gpu_fraction).remote(self.llm_queue_service, self.stopped)
             llm_worker_call = llm_worker.process.remote()
             self.actors.append(llm_worker)
             self.calls.append(llm_worker_call)
@@ -87,8 +87,13 @@ def create_worker_service() -> WorkerService:
     # we init ray here so we can handle its init in testing
     #
     # Detect available GPUs for local model inference
-    import torch
-    num_gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+    try:
+        import torch
+
+        num_gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+    except ImportError:
+        num_gpus = 0
+
     if num_gpus > 0:
         logger.info("Detected %d GPU(s), enabling GPU support in Ray", num_gpus)
     else:

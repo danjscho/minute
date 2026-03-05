@@ -27,8 +27,18 @@
 volumes:
   hf_cache:
   olmoasr_cache:
+  snomed_data:
+  snomed_embeddings:
+  medcat_models:
 
 services:
+  backend:
+    volumes:
+      - snomed_data:/data/snomed-ct:ro
+    environment:
+      - SNOMED_CODING_ENABLED=${SNOMED_CODING_ENABLED:-false}
+      - SNOMED_CT_DATA_PATH=/data/snomed-ct
+
   worker:
     build:
       context: .
@@ -39,6 +49,10 @@ services:
       - hf_cache:/root/.cache/huggingface
       # OlmoASR cache (persist model downloads between restarts)
       - olmoasr_cache:/root/.cache/olmoasr
+      # SNOMED CT data and models
+      - snomed_data:/data/snomed-ct
+      - snomed_embeddings:/data/snomed-embeddings
+      - medcat_models:/data/medcat
     deploy:
       resources:
         limits:
@@ -64,3 +78,13 @@ services:
       - LOCAL_LLM_ENABLE_THINKING=${LOCAL_LLM_ENABLE_THINKING:-false}
       # OlmoASR settings (pass through from .env)
       - OLMOASR_MODEL_SIZE=${OLMOASR_MODEL_SIZE:-}
+      # SNOMED CT coding settings (pass through from .env)
+      - SNOMED_CODING_ENABLED=${SNOMED_CODING_ENABLED:-false}
+      - SNOMED_DEVICE=${SNOMED_DEVICE:-cuda}
+      - SNOMED_NER_MODEL=${SNOMED_NER_MODEL:-d4data/biomedical-ner-all}
+      - SNOMED_LINKER_MODEL=${SNOMED_LINKER_MODEL:-cambridgeltl/SapBERT-from-PubMedBERT-fulltext}
+      - SNOMED_CONFIDENCE_THRESHOLD=${SNOMED_CONFIDENCE_THRESHOLD:-0.7}
+      - SNOMED_TOP_K_CANDIDATES=${SNOMED_TOP_K_CANDIDATES:-5}
+      - SNOMED_BATCH_SIZE=${SNOMED_BATCH_SIZE:-32}
+      - SNOMED_MAX_SEQ_LENGTH=${SNOMED_MAX_SEQ_LENGTH:-512}
+      - MEDCAT_MODEL_PACK_PATH=${MEDCAT_MODEL_PACK_PATH:-}

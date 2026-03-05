@@ -35,8 +35,8 @@ COPY pyproject.toml poetry.lock README.md ./
 # Configure poetry
 RUN poetry config virtualenvs.create false
 
-# Install project dependencies including local-models group
-RUN poetry install --with worker,local-models --without dev --no-interaction --no-ansi --no-root
+# Install project dependencies including local-models and snomed groups
+RUN poetry install --with worker,local-models,snomed --without dev --no-interaction --no-ansi --no-root
 
 # Copy the application code
 COPY common common
