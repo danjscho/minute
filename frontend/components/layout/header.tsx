@@ -6,7 +6,7 @@ import Link from 'next/link'
 export const Header = async () => {
   return (
     <>
-      <header className="flex h-[64px] items-center justify-between border-b border-gray-200 bg-black px-8 dark:border-gray-800">
+      <header className="flex h-[64px] items-center justify-between border-b border-[#003f80] bg-[#005eb8] px-8 dark:border-gray-800">
         <div className="flex items-center">
           <Link
             href="/"
@@ -26,39 +26,6 @@ export const Header = async () => {
             <span className="font-gds-transport text-3xl text-white">
               Minute
             </span>
-          </Link>
-        </div>
-        <div>
-          <Link
-            href="https://ai.gov.uk"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <svg
-              width="65"
-              height="40"
-              aria-label="i.AI"
-              focusable="false"
-              viewBox="0 0 167 105"
-            >
-              <g id="Layer_2" data-name="Layer 2">
-                <g id="Layer_1-2" data-name="Layer 1">
-                  <rect y="24.937" width="22" fill="#fff" height="80" x="0" />
-                  <rect
-                    fill="#c50878"
-                    x="144.87"
-                    width="21.82"
-                    height="104.15"
-                  />
-                  <circle r="11" cx="11" fill="#fff" cy="11" />
-                  <path
-                    fill="#c50878"
-                    d="M122.1,104.15,115,83.7H79.41l-6.75,20.45H48.52L87.06,0H108.6l38.15,104.15ZM97.44,27.8,85.76,63.55h23.1Z"
-                  />
-                  <circle r="11" cx="36.700001" fill="#fff" cy="93.682587" />
-                </g>
-              </g>
-            </svg>
           </Link>
         </div>
       </header>

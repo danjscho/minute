@@ -5,11 +5,8 @@ import { TanstackQueryProvider } from '@/providers/TanstackQueryProvider'
 import PosthogProvider from '@/providers/posthog'
 import { RecordingDbProvider } from '@/providers/transcription-db-provider'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import { Toaster } from 'sonner'
 import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Minute',
@@ -22,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en">
       <body>
         <TanstackQueryProvider>
           <PosthogProvider>
