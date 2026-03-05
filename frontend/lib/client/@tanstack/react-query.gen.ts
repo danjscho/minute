@@ -8,6 +8,12 @@ import {
 } from '@tanstack/react-query'
 import { client as _heyApiClient } from '../client.gen'
 import {
+  exportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGet,
+  searchSnomedConceptsSnomedConceptsSearchGet,
+  getSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGet,
+  triggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPost,
+  deleteAnnotationSnomedAnnotationsAnnotationIdDelete,
+  verifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatch,
   createChatTranscriptionsTranscriptionIdChatPost,
   createMinuteTranscriptionTranscriptionIdMinutesPost,
   createMinuteVersionMinutesMinuteIdVersionsPost,
@@ -39,6 +45,17 @@ import {
   type Options,
 } from '../sdk.gen'
 import type {
+  ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetData,
+  SearchSnomedConceptsSnomedConceptsSearchGetData,
+  GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetData,
+  TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostData,
+  TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostError,
+  TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostResponse,
+  DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteData,
+  DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteError,
+  VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchData,
+  VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchError,
+  VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchResponse,
   CreateChatTranscriptionsTranscriptionIdChatPostData,
   CreateChatTranscriptionsTranscriptionIdChatPostError,
   CreateChatTranscriptionsTranscriptionIdChatPostResponse,
@@ -1178,5 +1195,199 @@ export const getChatTranscriptionsTranscriptionIdChatChatIdGetOptions = (
     },
     queryKey:
       getChatTranscriptionsTranscriptionIdChatChatIdGetQueryKey(options),
+  })
+}
+
+export const getSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetQueryKey =
+  (
+    options: Options<GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetData>
+  ) =>
+    createQueryKey(
+      'getSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGet',
+      options
+    )
+
+/**
+ * Get Snomed Annotations
+ * Get all SNOMED annotations for a transcription.
+ */
+export const getSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetOptions =
+  (
+    options: Options<GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetData>
+  ) => {
+    return queryOptions({
+      queryFn: async ({ queryKey, signal }) => {
+        const { data } =
+          await getSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGet(
+            {
+              ...options,
+              ...queryKey[0],
+              signal,
+              throwOnError: true,
+            }
+          )
+        return data
+      },
+      queryKey:
+        getSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetQueryKey(
+          options
+        ),
+    })
+  }
+
+/**
+ * Trigger Snomed Coding
+ * Trigger SNOMED CT coding for a transcription.
+ */
+export const triggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostMutation =
+  (
+    options?: Partial<
+      Options<TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostData>
+    >
+  ): UseMutationOptions<
+    TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostResponse,
+    TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostError,
+    Options<TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostResponse,
+      TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostError,
+      Options<TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostData>
+    > = {
+      mutationFn: async (localOptions) => {
+        const { data } =
+          await triggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPost(
+            {
+              ...options,
+              ...localOptions,
+              throwOnError: true,
+            }
+          )
+        return data
+      },
+    }
+    return mutationOptions
+  }
+
+/**
+ * Delete Annotation
+ * Delete a SNOMED annotation (reject).
+ */
+export const deleteAnnotationSnomedAnnotationsAnnotationIdDeleteMutation = (
+  options?: Partial<
+    Options<DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteData>
+  >
+): UseMutationOptions<
+  void,
+  DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteError,
+  Options<DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    void,
+    DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteError,
+    Options<DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteData>
+  > = {
+    mutationFn: async (localOptions) => {
+      await deleteAnnotationSnomedAnnotationsAnnotationIdDelete({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      })
+    },
+  }
+  return mutationOptions
+}
+
+/**
+ * Verify Annotation
+ * Verify or correct a SNOMED annotation.
+ */
+export const verifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchMutation =
+  (
+    options?: Partial<
+      Options<VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchData>
+    >
+  ): UseMutationOptions<
+    VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchResponse,
+    VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchError,
+    Options<VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchData>
+  > => {
+    const mutationOptions: UseMutationOptions<
+      VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchResponse,
+      VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchError,
+      Options<VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchData>
+    > = {
+      mutationFn: async (localOptions) => {
+        const { data } =
+          await verifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatch({
+            ...options,
+            ...localOptions,
+            throwOnError: true,
+          })
+        return data
+      },
+    }
+    return mutationOptions
+  }
+
+export const exportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetQueryKey =
+  (
+    options: Options<ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetData>
+  ) =>
+    createQueryKey(
+      'exportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGet',
+      options
+    )
+
+/**
+ * Export Snomed Annotations
+ * Export SNOMED annotations for a transcription.
+ */
+export const exportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetOptions =
+  (
+    options: Options<ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetData>
+  ) => {
+    return queryOptions({
+      queryFn: async ({ queryKey, signal }) => {
+        const { data } =
+          await exportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGet(
+            {
+              ...options,
+              ...queryKey[0],
+              signal,
+              throwOnError: true,
+            }
+          )
+        return data
+      },
+      queryKey:
+        exportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetQueryKey(
+          options
+        ),
+    })
+  }
+
+export const searchSnomedConceptsSnomedConceptsSearchGetQueryKey = (
+  options: Options<SearchSnomedConceptsSnomedConceptsSearchGetData>
+) => createQueryKey('searchSnomedConceptsSnomedConceptsSearchGet', options)
+
+/**
+ * Search Snomed Concepts
+ * Search SNOMED CT concepts by term (prefix match).
+ */
+export const searchSnomedConceptsSnomedConceptsSearchGetOptions = (
+  options: Options<SearchSnomedConceptsSnomedConceptsSearchGetData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await searchSnomedConceptsSnomedConceptsSearchGet({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      })
+      return data
+    },
+    queryKey: searchSnomedConceptsSnomedConceptsSearchGetQueryKey(options),
   })
 }

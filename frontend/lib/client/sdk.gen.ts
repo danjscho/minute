@@ -6,6 +6,24 @@ import type {
   Client,
 } from '@hey-api/client-next'
 import type {
+  ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetData,
+  ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetResponses,
+  ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetErrors,
+  SearchSnomedConceptsSnomedConceptsSearchGetData,
+  SearchSnomedConceptsSnomedConceptsSearchGetResponses,
+  SearchSnomedConceptsSnomedConceptsSearchGetErrors,
+  GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetData,
+  GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetResponses,
+  GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetErrors,
+  TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostData,
+  TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostResponses,
+  TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostErrors,
+  DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteData,
+  DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteResponses,
+  DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteErrors,
+  VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchData,
+  VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchResponses,
+  VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchErrors,
   ListTranscriptionsTranscriptionsGetData,
   ListTranscriptionsTranscriptionsGetResponses,
   ListTranscriptionsTranscriptionsGetErrors,
@@ -706,6 +724,135 @@ export const getChatTranscriptionsTranscriptionIdChatChatIdGet = <
     ThrowOnError
   >({
     url: '/transcriptions/{transcription_id}/chat/{chat_id}',
+    ...options,
+  })
+}
+
+/**
+ * Get Snomed Annotations
+ * Get all SNOMED annotations for a transcription.
+ */
+export const getSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGet =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetData,
+      ThrowOnError
+    >
+  ) => {
+    return (options.client ?? _heyApiClient).get<
+      GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetResponses,
+      GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetErrors,
+      ThrowOnError
+    >({
+      url: '/transcriptions/{transcription_id}/snomed-annotations',
+      ...options,
+    })
+  }
+
+/**
+ * Trigger Snomed Coding
+ * Trigger SNOMED CT coding for a transcription.
+ */
+export const triggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPost =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostData,
+      ThrowOnError
+    >
+  ) => {
+    return (options.client ?? _heyApiClient).post<
+      TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostResponses,
+      TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostErrors,
+      ThrowOnError
+    >({
+      url: '/transcriptions/{transcription_id}/snomed-annotations/trigger',
+      ...options,
+    })
+  }
+
+/**
+ * Delete Annotation
+ * Delete a SNOMED annotation (reject).
+ */
+export const deleteAnnotationSnomedAnnotationsAnnotationIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteData,
+    ThrowOnError
+  >
+) => {
+  return (options.client ?? _heyApiClient).delete<
+    DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteResponses,
+    DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteErrors,
+    ThrowOnError
+  >({
+    url: '/snomed-annotations/{annotation_id}',
+    ...options,
+  })
+}
+
+/**
+ * Verify Annotation
+ * Verify or correct a SNOMED annotation.
+ */
+export const verifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchData,
+    ThrowOnError
+  >
+) => {
+  return (options.client ?? _heyApiClient).patch<
+    VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchResponses,
+    VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchErrors,
+    ThrowOnError
+  >({
+    url: '/snomed-annotations/{annotation_id}/verify',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  })
+}
+
+/**
+ * Export Snomed Annotations
+ * Export SNOMED annotations for a transcription.
+ */
+export const exportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGet =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetData,
+      ThrowOnError
+    >
+  ) => {
+    return (options.client ?? _heyApiClient).get<
+      ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetResponses,
+      ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetErrors,
+      ThrowOnError
+    >({
+      url: '/transcriptions/{transcription_id}/snomed-annotations/export',
+      ...options,
+    })
+  }
+
+export const searchSnomedConceptsSnomedConceptsSearchGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    SearchSnomedConceptsSnomedConceptsSearchGetData,
+    ThrowOnError
+  >
+) => {
+  return (options.client ?? _heyApiClient).get<
+    SearchSnomedConceptsSnomedConceptsSearchGetResponses,
+    SearchSnomedConceptsSnomedConceptsSearchGetErrors,
+    ThrowOnError
+  >({
+    url: '/snomed-concepts/search',
     ...options,
   })
 }

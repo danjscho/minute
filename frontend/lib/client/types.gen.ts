@@ -1729,6 +1729,419 @@ export type GetChatTranscriptionsTranscriptionIdChatChatIdGetResponses = {
 export type GetChatTranscriptionsTranscriptionIdChatChatIdGetResponse =
   GetChatTranscriptionsTranscriptionIdChatChatIdGetResponses[keyof GetChatTranscriptionsTranscriptionIdChatChatIdGetResponses]
 
+/**
+ * SourceType
+ */
+export type SourceType = 'transcript' | 'minute' | 'minute_version'
+
+/**
+ * AlternativeSnomedConcept
+ * A candidate SNOMED concept from the top-K results.
+ */
+export type AlternativeSnomedConcept = {
+  /**
+   * SNOMED CT concept identifier
+   */
+  concept_id: string
+  /**
+   * SNOMED CT preferred term
+   */
+  preferred_term: string
+  /**
+   * Fully specified name
+   */
+  fsn: string | null
+  /**
+   * Confidence score for this candidate
+   */
+  confidence_score: number
+}
+
+/**
+ * SnomedAnnotationResponse
+ * Response schema for a single SNOMED annotation.
+ */
+export type SnomedAnnotationResponse = {
+  /**
+   * Id
+   */
+  id: string
+  /**
+   * Transcription Id
+   */
+  transcription_id: string
+  source_type: SourceType
+  /**
+   * Source Id
+   */
+  source_id: string | null
+  /**
+   * Text Span
+   */
+  text_span: string
+  /**
+   * Start Char
+   */
+  start_char: number
+  /**
+   * End Char
+   */
+  end_char: number
+  /**
+   * Entity Type
+   */
+  entity_type: string | null
+  /**
+   * Snomed Concept Id
+   */
+  snomed_concept_id: string | null
+  /**
+   * Snomed Preferred Term
+   */
+  snomed_preferred_term: string | null
+  /**
+   * Snomed Fsn
+   */
+  snomed_fsn: string | null
+  /**
+   * Confidence Score
+   */
+  confidence_score: number | null
+  /**
+   * Is Verified
+   */
+  is_verified: boolean
+  /**
+   * Verified By
+   */
+  verified_by: string | null
+  /**
+   * Alternative Concepts
+   */
+  alternative_concepts: Array<AlternativeSnomedConcept> | null
+  /**
+   * Created Datetime
+   */
+  created_datetime: string
+  /**
+   * Updated Datetime
+   */
+  updated_datetime: string
+}
+
+/**
+ * SnomedAnnotationListResponse
+ * Response schema for listing SNOMED annotations for a transcription.
+ */
+export type SnomedAnnotationListResponse = {
+  /**
+   * Annotations
+   */
+  annotations: Array<SnomedAnnotationResponse>
+  /**
+   * Total Count
+   */
+  total_count: number
+}
+
+/**
+ * SnomedAnnotationVerifyRequest
+ * Request to verify or correct a SNOMED annotation.
+ */
+export type SnomedAnnotationVerifyRequest = {
+  /**
+   * Whether the annotation is verified as correct
+   */
+  is_verified: boolean
+  /**
+   * Corrected SNOMED concept ID if overriding the model's choice
+   */
+  snomed_concept_id?: string | null
+  /**
+   * Corrected preferred term
+   */
+  snomed_preferred_term?: string | null
+  /**
+   * Corrected fully specified name
+   */
+  snomed_fsn?: string | null
+}
+
+export type GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetData =
+  {
+    body?: never
+    headers?: {
+      /**
+       * X-Amzn-Oidc-Accesstoken
+       */
+      'x-amzn-oidc-accesstoken'?: string | null
+    }
+    path: {
+      /**
+       * Transcription Id
+       */
+      transcription_id: string
+    }
+    query?: never
+    url: '/transcriptions/{transcription_id}/snomed-annotations'
+  }
+
+export type GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError
+  }
+
+export type GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetError =
+  GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetErrors[keyof GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetErrors]
+
+export type GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: SnomedAnnotationListResponse
+  }
+
+export type GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetResponse =
+  GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetResponses[keyof GetSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetResponses]
+
+export type TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostData =
+  {
+    body?: never
+    headers?: {
+      /**
+       * X-Amzn-Oidc-Accesstoken
+       */
+      'x-amzn-oidc-accesstoken'?: string | null
+    }
+    path: {
+      /**
+       * Transcription Id
+       */
+      transcription_id: string
+    }
+    query?: {
+      /**
+       * Source type: transcript or minute
+       */
+      source_type?: string
+    }
+    url: '/transcriptions/{transcription_id}/snomed-annotations/trigger'
+  }
+
+export type TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError
+  }
+
+export type TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostError =
+  TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostErrors[keyof TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostErrors]
+
+export type TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    202: {
+      message: string
+      transcription_id: string
+    }
+  }
+
+export type TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostResponse =
+  TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostResponses[keyof TriggerSnomedCodingTranscriptionsTranscriptionIdSnomedAnnotationsTriggerPostResponses]
+
+export type DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteData = {
+  body?: never
+  headers?: {
+    /**
+     * X-Amzn-Oidc-Accesstoken
+     */
+    'x-amzn-oidc-accesstoken'?: string | null
+  }
+  path: {
+    /**
+     * Annotation Id
+     */
+    annotation_id: string
+  }
+  query?: never
+  url: '/snomed-annotations/{annotation_id}'
+}
+
+export type DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteError =
+  DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteErrors[keyof DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteErrors]
+
+export type DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  204: void
+}
+
+export type DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteResponse =
+  DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteResponses[keyof DeleteAnnotationSnomedAnnotationsAnnotationIdDeleteResponses]
+
+export type VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchData = {
+  body: SnomedAnnotationVerifyRequest
+  headers?: {
+    /**
+     * X-Amzn-Oidc-Accesstoken
+     */
+    'x-amzn-oidc-accesstoken'?: string | null
+  }
+  path: {
+    /**
+     * Annotation Id
+     */
+    annotation_id: string
+  }
+  query?: never
+  url: '/snomed-annotations/{annotation_id}/verify'
+}
+
+export type VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchError =
+  VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchErrors[keyof VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchErrors]
+
+export type VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: SnomedAnnotationResponse
+  }
+
+export type VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchResponse =
+  VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchResponses[keyof VerifyAnnotationSnomedAnnotationsAnnotationIdVerifyPatchResponses]
+
+export type ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetData =
+  {
+    body?: never
+    headers?: {
+      /**
+       * X-Amzn-Oidc-Accesstoken
+       */
+      'x-amzn-oidc-accesstoken'?: string | null
+    }
+    path: {
+      /**
+       * Transcription Id
+       */
+      transcription_id: string
+    }
+    query?: {
+      /**
+       * Format
+       * Export format: json or csv
+       */
+      format?: string
+    }
+    url: '/transcriptions/{transcription_id}/snomed-annotations/export'
+  }
+
+export type ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError
+  }
+
+export type ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetError =
+  ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetErrors[keyof ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetErrors]
+
+export type ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: SnomedAnnotationListResponse
+  }
+
+export type ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetResponse =
+  ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetResponses[keyof ExportSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsExportGetResponses]
+
+/**
+ * SnomedConceptSearchResult
+ */
+export type SnomedConceptSearchResult = {
+  concept_id: string
+  preferred_term: string
+  fsn: string
+  semantic_tag: string
+}
+
+/**
+ * SnomedConceptSearchResponse
+ */
+export type SnomedConceptSearchResponse = {
+  results: Array<SnomedConceptSearchResult>
+  total_count: number
+  query: string
+}
+
+export type SearchSnomedConceptsSnomedConceptsSearchGetData = {
+  body?: never
+  headers?: {
+    /**
+     * X-Amzn-Oidc-Accesstoken
+     */
+    'x-amzn-oidc-accesstoken'?: string | null
+  }
+  path?: never
+  query: {
+    /**
+     * Maximum results to return
+     */
+    limit?: number
+    /**
+     * Search term
+     */
+    q: string
+  }
+  url: '/snomed-concepts/search'
+}
+
+export type SearchSnomedConceptsSnomedConceptsSearchGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type SearchSnomedConceptsSnomedConceptsSearchGetError =
+  SearchSnomedConceptsSnomedConceptsSearchGetErrors[keyof SearchSnomedConceptsSnomedConceptsSearchGetErrors]
+
+export type SearchSnomedConceptsSnomedConceptsSearchGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: SnomedConceptSearchResponse
+}
+
+export type SearchSnomedConceptsSnomedConceptsSearchGetResponse =
+  SearchSnomedConceptsSnomedConceptsSearchGetResponses[keyof SearchSnomedConceptsSnomedConceptsSearchGetResponses]
+
 export type ClientOptions = {
   baseUrl: 'http://localhost:8080' | (string & {})
 }

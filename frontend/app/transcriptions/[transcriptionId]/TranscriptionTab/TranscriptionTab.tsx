@@ -6,7 +6,14 @@ import { Button } from '@/components/ui/button'
 import CopyButton from '@/components/ui/copy-button'
 import { useSaveTranscription } from '@/hooks/use-save-transcription'
 import { DialogueEntry, Transcription } from '@/lib/client'
-import { getRecordingsForTranscriptionTranscriptionsTranscriptionIdRecordingsGetOptions } from '@/lib/client/@tanstack/react-query.gen'
+import {
+  getRecordingsForTranscriptionTranscriptionsTranscriptionIdRecordingsGetOptions,
+  getSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetOptions,
+} from '@/lib/client/@tanstack/react-query.gen'
+import {
+  computeEntryOffsets,
+  segmentEntryText,
+} from '@/lib/snomed-highlight-utils'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowDown, Play } from 'lucide-react'
@@ -62,6 +69,21 @@ export function TranscriptionTab({
       { path: { transcription_id: transcription.id! } }
     ),
   })
+
+  const { data: snomedData } = useQuery({
+    ...getSnomedAnnotationsTranscriptionsTranscriptionIdSnomedAnnotationsGetOptions(
+      { path: { transcription_id: transcription.id! } }
+    ),
+  })
+
+  const snomedAnnotations = (snomedData?.annotations ?? []).filter(
+    (a) => a.source_type === 'transcript'
+  )
+
+  const entryOffsets = useMemo(
+    () => computeEntryOffsets(transcription.dialogue_entries || []),
+    [transcription.dialogue_entries]
+  )
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const playingRef = useRef<HTMLDivElement | null>(null)
@@ -158,7 +180,20 @@ export function TranscriptionTab({
                     index={index}
                     update={update}
                   />
-                  <TranscriptionTextArea control={control} index={index} />
+                  <TranscriptionTextArea
+                    control={control}
+                    index={index}
+                    highlightSegments={
+                      snomedAnnotations.length > 0 && entryOffsets[index]
+                        ? segmentEntryText(
+                            entry.text,
+                            entryOffsets[index].start,
+                            entryOffsets[index].end,
+                            snomedAnnotations
+                          )
+                        : undefined
+                    }
+                  />
                 </div>
               )
             })}

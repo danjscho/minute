@@ -1,6 +1,7 @@
 'use client'
 import ChatTab from '@/app/transcriptions/[transcriptionId]/ChatTab/ChatTab'
 import { MinuteTab } from '@/app/transcriptions/[transcriptionId]/MinuteTab/MinuteTab'
+import { SnomedTab } from '@/app/transcriptions/[transcriptionId]/SnomedTab/SnomedTab'
 import { TranscriptionTab } from '@/app/transcriptions/[transcriptionId]/TranscriptionTab/TranscriptionTab'
 import { DownloadButton } from '@/components/download-button'
 import { AudioWav } from '@/components/icons/AudioWav'
@@ -127,6 +128,9 @@ export default function TranscriptionPage({
           >
             Transcript
           </TabsTrigger>
+          <TabsTrigger value="snomed" className="data-[state=active]:shadow-lg">
+            Clinical codes
+          </TabsTrigger>
           {isChatEnabled && (
             <TabsTrigger value="chat" className="data-[state=active]:shadow-lg">
               Chat with your meeting
@@ -138,6 +142,9 @@ export default function TranscriptionPage({
         </TabsContent>
         <TabsContent value="transcript">
           <TranscriptionTab transcription={transcription} />
+        </TabsContent>
+        <TabsContent value="snomed">
+          <SnomedTab transcriptionId={transcriptionId} />
         </TabsContent>
         {isChatEnabled && (
           <TabsContent value="chat">
