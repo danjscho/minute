@@ -199,7 +199,6 @@ class MedASRAdapter(TranscriptionAdapter):
     def _transcribe_sync(cls, audio_path: Path) -> str:
         """Synchronous transcription (runs in thread pool)."""
         import librosa
-        import numpy as np
         import torch
 
         model, processor, device = cls._load_model()

@@ -303,7 +303,8 @@ class HuggingFaceModelAdapter:
         else:
             # Multimodal models (MedGemma) expect content as a list of content parts
             formatted_messages = [
-                {"role": msg["role"], "content": [{"type": "text", "text": msg["content"]}]} for msg in normalized_messages
+                {"role": msg["role"], "content": [{"type": "text", "text": msg["content"]}]}
+                for msg in normalized_messages
             ]
 
         # Check if tokenizer supports enable_thinking parameter
