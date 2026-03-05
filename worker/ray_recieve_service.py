@@ -4,12 +4,13 @@ from typing import Any
 
 import ray
 
-from common.services.exceptions import InteractionFailedError, TranscriptionFailedError
+from common.services.exceptions import InteractionFailedError, SNOMEDCodingFailedError, TranscriptionFailedError
 from common.services.minute_handler_service import MinuteGenerationFailedError, MinuteHandlerService
 from common.services.queue_services.base import QueueService
+from common.services.snomed_handler_service import SNOMEDHandlerService
 from common.services.transcription_handler_service import TranscriptionHandlerService
 from common.settings import get_settings
-from common.types import TaskType, WorkerMessage
+from common.types import SNOMEDCodingMessageData, TaskType, WorkerMessage
 from worker.healthcheck import HEARTBEAT_DIR, _ensure_heartbeat_dir
 
 logger = logging.getLogger(__name__)
@@ -67,6 +68,21 @@ class RayTranscriptionService:
                         self.llm_queue_service.publish_message(
                             WorkerMessage(id=minute_version.id, type=TaskType.MINUTE)
                         )
+                        # Auto-trigger SNOMED coding on the transcript
+                        if settings.SNOMED_CODING_ENABLED:
+                            try:
+                                transcription = TranscriptionHandlerService.get_transcription_from_minute_id(message.id)
+                                self.llm_queue_service.publish_message(
+                                    WorkerMessage(
+                                        id=transcription.id,
+                                        type=TaskType.SNOMED_CODING,
+                                        data=SNOMEDCodingMessageData(source_type="transcript"),
+                                    )
+                                )
+                            except Exception:
+                                logger.exception(
+                                    "Failed to trigger SNOMED coding after transcription for %s", message.id
+                                )
                     else:
                         logger.info("Async transcription job not ready yet. Re-queueing minute id: %s", message.id)
                         self.transcription_queue_service.publish_message(
@@ -103,6 +119,8 @@ class RayLlmService:
                         tasks.append(asyncio.create_task(self.process_edit_task(message, receipt_handle)))
                     case TaskType.INTERACTIVE:
                         tasks.append(asyncio.create_task(self.process_interactive_task(message, receipt_handle)))
+                    case TaskType.SNOMED_CODING:
+                        tasks.append(asyncio.create_task(self.process_snomed_coding_task(message, receipt_handle)))
                     case _:
                         logger.warning("Unknown task type: %s", message.type)
                         self.queue_service.deadletter_message(message, receipt_handle)
@@ -123,6 +141,26 @@ class RayLlmService:
             await MinuteHandlerService.process_minute_generation_message(message.id)
             # Delete the message to prevent repeated processing
             logger.info("Minute generation complete for MinuteVersion id %s", message.id)
+
+            # Auto-trigger SNOMED coding on the generated minutes
+            if settings.SNOMED_CODING_ENABLED:
+                try:
+                    from common.database.postgres_database import SessionLocal
+                    from common.database.postgres_models import MinuteVersion
+
+                    with SessionLocal() as session:
+                        mv = session.get(MinuteVersion, message.id)
+                        if mv:
+                            transcription = TranscriptionHandlerService.get_transcription_from_minute_id(mv.minute_id)
+                            self.queue_service.publish_message(
+                                WorkerMessage(
+                                    id=transcription.id,
+                                    type=TaskType.SNOMED_CODING,
+                                    data=SNOMEDCodingMessageData(source_type="minute"),
+                                )
+                            )
+                except Exception:
+                    logger.exception("Failed to trigger SNOMED coding after minute generation for %s", message.id)
         except MinuteGenerationFailedError:
             logger.exception("Minute generation for MinuteVersion id %s failed", message.id)
             # For handled errors we complete the message, unhandled errors are not caught
@@ -152,6 +190,18 @@ class RayLlmService:
             logger.info("Interaction complete for chat id %s", message.id)
         except InteractionFailedError:
             logger.exception("Interaction for chat id %s failed", message.id)
+            self.queue_service.complete_message(receipt_handle=receipt_handle)
+        else:
+            self.queue_service.complete_message(receipt_handle=receipt_handle)
+
+    async def process_snomed_coding_task(self, message: WorkerMessage, receipt_handle: Any) -> None:
+        source_type = getattr(message.data, "source_type", "transcript") if message.data else "transcript"
+        try:
+            logger.info("Received SNOMED coding message for transcription id %s (source=%s)", message.id, source_type)
+            await SNOMEDHandlerService.process_snomed_coding(message.id, source_type=source_type)
+            logger.info("SNOMED coding complete for transcription id %s", message.id)
+        except SNOMEDCodingFailedError:
+            logger.exception("SNOMED coding for transcription id %s failed", message.id)
             self.queue_service.complete_message(receipt_handle=receipt_handle)
         else:
             self.queue_service.complete_message(receipt_handle=receipt_handle)
