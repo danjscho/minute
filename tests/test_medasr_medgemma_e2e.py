@@ -10,17 +10,12 @@ Requires:
 - test_audio/test_audio.wav file
 """
 
-import asyncio
 from pathlib import Path
-from uuid import UUID
 
 import pytest
 
-from common.database.postgres_models import JobStatus, Minute, MinuteVersion, Transcription
 from common.services.transcription_services.medasr import MedASRAdapter
 from common.settings import get_settings
-from tests.marks import costs_money
-from tests.utils import get_test_client
 
 # Test audio file path
 TEST_AUDIO_PATH = Path("test_audio/test_audio.wav")

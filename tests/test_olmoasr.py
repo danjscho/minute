@@ -16,7 +16,6 @@ from common.services.transcription_services.adapter import AdapterType
 from common.services.transcription_services.olmoasr import OlmoASRAdapter
 from common.types import TranscriptionJobMessageData
 
-
 # Test audio file path
 TEST_AUDIO_PATH = Path("test_audio/test_audio.wav")
 
